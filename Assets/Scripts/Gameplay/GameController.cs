@@ -16,15 +16,37 @@ public class GameController : MonoBehaviour
     void SetupGame()
     {
         List<TubeModel> models = new List<TubeModel>();
-        for(int i = 0; i < tubeViews.Count; i++)
+        for (int i = 0; i < tubeViews.Count; i++)
         {
             TubeModel model = new TubeModel(_maxLiquidStack);
-            //Temp setup
-            if (i < 1)
+
+            switch (i)
             {
-                model.AddLayer(ColorType.Red);
-                model.AddLayer(ColorType.Yellow);
-                model.AddLayer(ColorType.Blue);
+                case 0:
+                    model.AddLayer(ColorType.Red);
+                    model.AddLayer(ColorType.Blue);
+                    model.AddLayer(ColorType.Yellow);
+                    model.AddLayer(ColorType.Red);
+                    break;
+
+                case 1:
+                    model.AddLayer(ColorType.Blue);
+                    model.AddLayer(ColorType.Yellow);
+                    model.AddLayer(ColorType.Red);
+                    model.AddLayer(ColorType.Blue);
+                    break;
+
+                case 2:
+                    model.AddLayer(ColorType.Yellow);
+                    model.AddLayer(ColorType.Red);
+                    model.AddLayer(ColorType.Blue);
+                    model.AddLayer(ColorType.Yellow);
+                    break;
+
+                case 3:
+                case 4:
+                    // empty tube
+                    break;
             }
 
             models.Add(model);
