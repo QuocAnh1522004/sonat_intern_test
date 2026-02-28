@@ -9,7 +9,7 @@ public class GameTester : MonoBehaviour
     {
         TubeModel t1 = new TubeModel(3);
         t1.AddLayer(ColorType.Red);
-        t1.AddLayer(ColorType.Red);
+        t1.AddLayer(ColorType.Yellow);
         t1.AddLayer(ColorType.Blue);
 
         TubeModel t2 = new TubeModel(4);

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+//this class controls the view displayed
 public class TubeView : MonoBehaviour
 {
     public Transform layerContainer;
@@ -19,6 +20,7 @@ public class TubeView : MonoBehaviour
     }
 
   
+    //destroy all previous color to turn reload new tube data
     public void Refresh()
     {
         foreach (Transform child in layerContainer)
@@ -28,7 +30,7 @@ public class TubeView : MonoBehaviour
 
         List<ColorType> layers = _model.GetLayers();
 
-        for (int i = 0; i < layers.Count; i++)
+        for (int i = 0; i < layers.Count; ++i)
         {
             GameObject layer = Instantiate(liquidLayerPrefab, layerContainer);
 
@@ -55,6 +57,7 @@ public class TubeView : MonoBehaviour
 
     private void OnMouseDown()
     {
+        Debug.Log("clicked on tube " + index);
         controller.OnTubeClicked(index);
     }
 }

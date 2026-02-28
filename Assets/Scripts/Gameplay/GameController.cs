@@ -6,6 +6,7 @@ public class GameController : MonoBehaviour
     public List<TubeView> tubeViews; //asign in inspector
     private int _selectedIndex = -1;
     private GameModel _gameModel;
+    private int _maxLiquidStack = 4;
 
     private void Start()
     {
@@ -17,9 +18,9 @@ public class GameController : MonoBehaviour
         List<TubeModel> models = new List<TubeModel>();
         for(int i = 0; i < tubeViews.Count; i++)
         {
-            TubeModel model = new TubeModel(4);
+            TubeModel model = new TubeModel(_maxLiquidStack);
             //Temp setup
-            if (i == 0)
+            if (i < 1)
             {
                 model.AddLayer(ColorType.Red);
                 model.AddLayer(ColorType.Yellow);
@@ -37,6 +38,7 @@ public class GameController : MonoBehaviour
         // First selection
         if (_selectedIndex == -1)
         {
+            Debug.Log("Current tube index:" + index);
             _selectedIndex = index;
             return;
         }
@@ -44,20 +46,22 @@ public class GameController : MonoBehaviour
         // Same tube clicked → cancel selection
         if (_selectedIndex == index)
         {
+            Debug.Log("same tube" + _selectedIndex + "selected, canceling select" );
             _selectedIndex = -1;
             return;
         }
 
-        //// Try pour
-        //if (_gameModel.TryPour(_selectedIndex, index))
-        //{
-        //    RefreshAll();
+        // Try pour
+        if (_gameModel.TryPour(_selectedIndex, index))
+        {
+            Debug.Log("Poured successfully from tube " + _selectedIndex+ " to tube " + index);
+            RefreshAll();
 
-        //    if (_gameModel.CheckWin())
-        //    {
-        //        Debug.Log("You Win!");
-        //    }
-        //}
+            if (_gameModel.CheckWin())
+            {
+                Debug.Log("You Win!");
+            }
+        }
 
         // Always clear selection after attempt
         _selectedIndex = -1;

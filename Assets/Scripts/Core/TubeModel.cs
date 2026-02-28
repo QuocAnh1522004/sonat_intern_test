@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+//this class contains the tube raw structure/data of the tube
 public class TubeModel
 {
     private Stack<ColorType> _layers;
