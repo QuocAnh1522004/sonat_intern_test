@@ -5,16 +5,16 @@ using UnityEngine;
 
 public class GameModel
 {
-    public List<TubeModel> Tubes { get; private set; }
+    private List<TubeModel> _tubes;
     public GameModel(List<TubeModel> tubes)
     {
-        Tubes = tubes;
+        _tubes = tubes;
     }
     public bool TryPour(int fromIndex, int toIndex)
     {
         if(fromIndex == toIndex) return false;
-        TubeModel from = Tubes[fromIndex];
-        TubeModel to = Tubes[toIndex];
+        TubeModel from = _tubes[fromIndex];
+        TubeModel to = _tubes[toIndex];
         if(!from.CanPourTo(to)) return false;
         from.PourTo(to);
         return true;
@@ -22,7 +22,7 @@ public class GameModel
 
     public bool CheckWin()
     {
-        return Tubes.All(t => t.IsComplete());
+        return _tubes.All(t => t.IsComplete());
     }
 
 }

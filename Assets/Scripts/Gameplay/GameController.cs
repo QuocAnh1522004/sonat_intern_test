@@ -7,7 +7,7 @@ public class GameController : MonoBehaviour
     public List<TubeView> tubeViews; //asign in inspector
     private int _selectedIndex;
     private GameModel _gameModel;
-    private int _maxLiquidStack = 4;
+    private const int _maxLiquidStack = 4;
     private int _resetIndex = -1;
     
 
