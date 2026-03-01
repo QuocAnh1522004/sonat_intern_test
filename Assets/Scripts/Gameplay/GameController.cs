@@ -4,63 +4,62 @@ using System.Collections.Generic;
 public class GameController : MonoBehaviour
 {
     [SerializeField] private GameObject _levelPassedPanel;
-    public List<TubeView> tubeViews; //asign in inspector
-    private int _selectedIndex;
+    [SerializeField] private GameObject _tubePrefab;
+    [SerializeField] private GameObject _tubeSpawnArea;
+    [SerializeField] private int _columns = 4;
+    [SerializeField] private float _spacingX = 1.5f;
+    [SerializeField] private float _spacingY = 2f;
+    public LevelDataSO levelDataSO;
+    private List<TubeView> tubeViews; 
     private GameModel _gameModel;
     private const int _maxLiquidStack = 4;
+    private int _selectedIndex;
     private int _resetIndex = -1;
-    
 
+    private void Awake()
+    {
+        _selectedIndex = _resetIndex;
+    }
     private void Start()
     {
         SetupGame();
-        _selectedIndex = _resetIndex;
     }
 
     void SetupGame()
-    {
-        List<TubeModel> models = new List<TubeModel>();
-        for (int i = 0; i < tubeViews.Count; i++)
+    {     
+        List<TubeModel> modelList = new List<TubeModel>();
+        tubeViews = new List<TubeView>();
+        int totalTubes = levelDataSO.tubeLevelDataSO.Count;
+        for (int i = 0; i < totalTubes; i++)
         {
             TubeModel model = new TubeModel(_maxLiquidStack);
-
-            switch (i)
+            foreach (var color in levelDataSO.tubeLevelDataSO[i].colorlayers)
             {
-                case 0:
-                    model.AddLayer(ColorType.Red);
-                    model.AddLayer(ColorType.Blue);
-                    model.AddLayer(ColorType.Yellow);
-                    model.AddLayer(ColorType.Red);
-                    break;
-
-                case 1:
-                    model.AddLayer(ColorType.Blue);
-                    model.AddLayer(ColorType.Yellow);
-                    model.AddLayer(ColorType.Red);
-                    model.AddLayer(ColorType.Blue);
-                    break;
-
-                case 2:
-                    model.AddLayer(ColorType.Yellow);
-                    model.AddLayer(ColorType.Red);
-                    model.AddLayer(ColorType.Blue);
-                    model.AddLayer(ColorType.Yellow);
-                    break;
-
-                case 3:
-                case 4:
-                    // empty tube
-                    break;
+                model.AddLayer(color);
             }
+            modelList.Add(model);
 
-            models.Add(model);
-            tubeViews[i].Initialize(model);
+            int row = i / _columns;
+            int col = i % _columns;
+            float totalWidth = (_columns - 1) * _spacingX;
+            Vector3 startOffset = new Vector3(-totalWidth / 2f, 0, 0);
+            Vector3 spawnPos = _tubeSpawnArea.transform.position +
+                   startOffset +
+                   new Vector3(col * _spacingX, -row * _spacingY, 0);
+            GameObject tubeObj = Instantiate(_tubePrefab, spawnPos, Quaternion.identity);
+            TubeView view = tubeObj.GetComponent<TubeView>();
+            view.Initialize(model, this, i);
+            tubeViews.Add(view);         
         }
-        _gameModel = new GameModel(models);
+        _gameModel = new GameModel(modelList);
     }
 
     public void OnTubeClicked(int targetIndex)
     {
+        //Block first select on empty bottle
+        if (_selectedIndex == _resetIndex && tubeViews[targetIndex].Model.IsEmpty) return;
+        //Block completed tubes
+        if (tubeViews[targetIndex].Model.IsFullAndFilledWithOneColor()) return;
         //First selection
         if (_selectedIndex == _resetIndex)
         {
@@ -69,7 +68,6 @@ public class GameController : MonoBehaviour
             tubeViews[_selectedIndex].SetSelected(true);
             return;
         }
-
         //Same tube clicked → cancel selection
         if (_selectedIndex == targetIndex)
         {
@@ -96,9 +94,6 @@ public class GameController : MonoBehaviour
             tubeViews[targetIndex].SetSelected(true); //will choose new tube to be selected if can not pour
             _selectedIndex = targetIndex;
         }
-
-        ////Clear selection after attempt
-        //_selectedIndex = -1;
     }
 
     private void RefreshAll()

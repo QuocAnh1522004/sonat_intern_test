@@ -4,18 +4,20 @@ using System.Collections.Generic;
 //this class controls the view displayed
 public class TubeView : MonoBehaviour
 {
+    [SerializeField] private GameObject _tubeCap;
     public Transform layerContainer;
     public GameObject liquidLayerPrefab;
-    public int index;
+    private int _tubeIndex;
+    public TubeModel Model { get; private set; }
+    private GameController _controller;
     private float layerHeight = 0.5f;
-    public GameController controller;
-
-    private TubeModel _model;
-
+   
     //bind view to model data
-    public void Initialize(TubeModel model)
+    public void Initialize(TubeModel model, GameController controller, int index)
     {
-       _model = model;
+        Model = model;
+        _controller = controller;
+        _tubeIndex = index;
         Refresh();
     }
 
@@ -28,7 +30,7 @@ public class TubeView : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        List<ColorType> layers = _model.GetLayers();
+        List<ColorType> layers = Model.GetLayers();
 
         for (int i = 0; i < layers.Count; ++i)
         {
@@ -58,8 +60,8 @@ public class TubeView : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Debug.Log("clicked on tube " + index);
-        controller.OnTubeClicked(index);
+        Debug.Log("clicked on tube " + _tubeIndex);
+        _controller.OnTubeClicked(_tubeIndex);
     }
 
     public void SetSelected(bool isSelected)

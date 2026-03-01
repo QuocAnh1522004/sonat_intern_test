@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f877a886ee3b19e4aaeb31706362a9c0, type: 3}
   m_Name: Tube04SO
   m_EditorClassIdentifier: 
-  layers: 04000000000000000100000002000000
+  colorlayers: 04000000000000000100000002000000

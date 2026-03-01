@@ -47,6 +47,11 @@ public class TubeModel
         return _layers.All(c => c == _layers.Peek());
     }
 
+    public bool IsFullAndFilledWithOneColor()
+    {
+        return (_layers.All(c => c == _layers.Peek()) && IsFull);
+    }
+
     public void AddLayer(ColorType color)
     {
         if (!IsFull)
