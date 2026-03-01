@@ -3,14 +3,18 @@ using System.Collections.Generic;
 
 public class GameController : MonoBehaviour
 {
+    [SerializeField] private GameObject _levelPassedPanel;
     public List<TubeView> tubeViews; //asign in inspector
-    private int _selectedIndex = -1;
+    private int _selectedIndex;
     private GameModel _gameModel;
     private int _maxLiquidStack = 4;
+    private int _resetIndex = -1;
+    
 
     private void Start()
     {
         SetupGame();
+        _selectedIndex = _resetIndex;
     }
 
     void SetupGame()
@@ -55,38 +59,46 @@ public class GameController : MonoBehaviour
         _gameModel = new GameModel(models);
     }
 
-    public void OnTubeClicked(int index)
+    public void OnTubeClicked(int targetIndex)
     {
-        // First selection
-        if (_selectedIndex == -1)
+        //First selection
+        if (_selectedIndex == _resetIndex)
         {
-            Debug.Log("Current tube index:" + index);
-            _selectedIndex = index;
+            Debug.Log("Current tube index:" + targetIndex);
+            _selectedIndex = targetIndex;
+            tubeViews[_selectedIndex].SetSelected(true);
             return;
         }
 
-        // Same tube clicked → cancel selection
-        if (_selectedIndex == index)
+        //Same tube clicked → cancel selection
+        if (_selectedIndex == targetIndex)
         {
             Debug.Log("same tube" + _selectedIndex + "selected, canceling select" );
-            _selectedIndex = -1;
+            tubeViews[_selectedIndex].SetSelected(false);
+            _selectedIndex = _resetIndex;      
             return;
         }
 
-        // Try pour
-        if (_gameModel.TryPour(_selectedIndex, index))
+        //Try pour
+        if (_gameModel.TryPour(_selectedIndex, targetIndex))
         {
-            Debug.Log("Poured successfully from tube " + _selectedIndex+ " to tube " + index);
+            Debug.Log("Poured successfully from tube " + _selectedIndex + " to tube " + targetIndex);
             RefreshAll();
-
+            _selectedIndex = _resetIndex;
             if (_gameModel.CheckWin())
             {
-                Debug.Log("You Win!");
+                _levelPassedPanel.SetActive(true);
             }
         }
+        else
+        {
+            tubeViews[_selectedIndex].SetSelected(false);
+            tubeViews[targetIndex].SetSelected(true); //will choose new tube to be selected if can not pour
+            _selectedIndex = targetIndex;
+        }
 
-        // Always clear selection after attempt
-        _selectedIndex = -1;
+        ////Clear selection after attempt
+        //_selectedIndex = -1;
     }
 
     private void RefreshAll()

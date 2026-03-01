@@ -40,6 +40,7 @@ public class TubeView : MonoBehaviour
             layer.GetComponent<SpriteRenderer>().color =
                 ConvertColor(layers[i]);
         }
+        SetSelected(false);
     }
 
     private Color ConvertColor(ColorType type)
@@ -59,5 +60,10 @@ public class TubeView : MonoBehaviour
     {
         Debug.Log("clicked on tube " + index);
         controller.OnTubeClicked(index);
+    }
+
+    public void SetSelected(bool isSelected)
+    {
+        transform.localScale = isSelected ? Vector3.one * 1.1f : Vector3.one;
     }
 }
