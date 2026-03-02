@@ -97,7 +97,7 @@ public class TubeView : MonoBehaviour
     {
         float moveDuration = 0.3f;
         float rotateDuration = 0.2f;
-        float horizontalOffset = 1.5f; 
+        float horizontalOffset = 1.5f;
         float verticalLift = 2f;
         Vector3 start = _originalPos;
         bool isRight = target.transform.position.x > start.x;
@@ -113,7 +113,7 @@ public class TubeView : MonoBehaviour
             .AsyncWaitForCompletion();
 
         //lean
-        
+
         await transform.DORotate(new Vector3(0, 0, direction), rotateDuration)
             .SetEase(Ease.OutQuad)
             .AsyncWaitForCompletion();
@@ -135,24 +135,44 @@ public class TubeView : MonoBehaviour
 
     public async Task AnimateLiquidPour(TubeView target, int count)
     {
+        float durationPerLayer = 0.35f;
+        Sequence seq = DOTween.Sequence();
+
         for (int i = 0; i < count; i++)
         {
-            GameObject topLayer = GetTopLayerVisual();
-            if (topLayer == null) return;
+            if (_layerVisuals.Count == 0) break;
 
+            int topIndex = _layerVisuals.Count - 1;
+            GameObject topLayer = _layerVisuals[topIndex];
+            _layerVisuals.RemoveAt(topIndex);
             ColorType color = Model.PeekTop().Value;
-            await topLayer.transform
-                .DOScaleY(0f, 0.2f)
-                .SetEase(Ease.InOutSine)
-                .AsyncWaitForCompletion();
-
-            _layerVisuals.Remove(topLayer);
-            Destroy(topLayer);
             int targetIndex = target._layerVisuals.Count;
-            await target.SpawnLayerVisual(color, targetIndex);
+            GameObject newLayer = Instantiate(liquidLayerPrefab, target.layerContainer);
+            newLayer.GetComponent<SpriteRenderer>().color = ConvertColor(color);
+            newLayer.transform.localPosition =
+                new Vector3(0, targetIndex * layerHeight, 0);
+            Vector3 originalScale = newLayer.transform.localScale;
+            newLayer.transform.localScale =
+                new Vector3(originalScale.x, 0f, originalScale.z);
+            target._layerVisuals.Add(newLayer);
+            seq.Append(
+                topLayer.transform
+                    .DOScaleY(0f, durationPerLayer)
+                    .SetEase(Ease.InOutSine)
+                    .OnComplete(() =>
+                    {
+                        Destroy(topLayer);
+                    })
+            );
 
-            await Task.Delay(50);
+            // GROW TARGET
+            seq.Join(
+                newLayer.transform
+                    .DOScaleY(originalScale.y, durationPerLayer)
+                    .SetEase(Ease.InOutSine)
+            );
         }
+        await seq.AsyncWaitForCompletion();
     }
 
     private GameObject GetTopLayerVisual()
