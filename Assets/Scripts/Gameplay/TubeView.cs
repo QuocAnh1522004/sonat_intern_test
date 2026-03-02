@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using DG.Tweening;
+using System.Threading.Tasks;
 
 //this class controls the view displayed
 public class TubeView : MonoBehaviour
@@ -11,13 +13,17 @@ public class TubeView : MonoBehaviour
     public TubeModel Model { get; private set; }
     private GameController _controller;
     private float layerHeight = 0.5f;
-   
+    private Vector3 _originalPos;
+    private Quaternion _originalRot;
+
     //bind view to model data
     public void Initialize(TubeModel model, GameController controller, int index)
     {
         Model = model;
         _controller = controller;
         _tubeIndex = index;
+        _originalPos = transform.position;
+        _originalRot = transform.rotation;
         Refresh();
     }
 
@@ -70,6 +76,55 @@ public class TubeView : MonoBehaviour
 
     public void SetSelected(bool isSelected)
     {
-        transform.localScale = isSelected ? Vector3.one * 1.1f : Vector3.one;
+        if (isSelected)
+        {
+            transform.localScale = Vector3.one * 1.1f;
+            PlaySelect();
+            return;
+        }
+        transform.localScale = Vector3.one;
+        ResetSelect();
+        //PlaySelect();
+    }
+
+    public void PlaySelect()
+    {
+        transform.DOMoveY(_originalPos.y + 0.5f, 0.2f);
+    }
+
+    public void ResetSelect()
+    {
+        transform.DOMove(_originalPos, 0.2f);
+    }
+
+    public async Task PlayPourAnimation(Transform target)
+    {
+        float moveDuration = 0.3f;
+        float rotateDuration = 0.2f;
+        Vector3 start = _originalPos;
+        Vector3 mid = (start + target.position) / 2 + Vector3.up * 1.2f;
+        //move to middle
+        await transform.DOMove(mid, moveDuration)
+            .SetEase(Ease.OutQuad)
+            .AsyncWaitForCompletion();
+
+        //lean
+        float direction = target.position.x > transform.position.x ? -45f : 45f;
+        await transform.DORotate(new Vector3(0, 0, direction), rotateDuration)
+            .SetEase(Ease.OutQuad)
+            .AsyncWaitForCompletion();
+
+        //pouring animation time
+        await Task.Delay(300);
+
+        //return to straight 
+        await transform.DORotate(_originalRot.eulerAngles, rotateDuration)
+            .SetEase(Ease.OutQuad)
+            .AsyncWaitForCompletion();
+
+        //return to original position
+        await transform.DOMove(start, moveDuration)
+            .SetEase(Ease.InQuad)
+            .AsyncWaitForCompletion();
     }
 }

@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
     private const int _maxLiquidStack = 4;
     private int _selectedIndex;
     private int _resetIndex = -1;
+    private bool _isAnimating = false;
 
     private void Awake()
     {
@@ -54,12 +55,16 @@ public class GameController : MonoBehaviour
         _gameModel = new GameModel(modelList);
     }
 
-    public void OnTubeClicked(int targetIndex)
+    public async void OnTubeClicked(int targetIndex)
     {
+        if (_isAnimating) return;
+
         //Block first select on empty bottle
         if (_selectedIndex == _resetIndex && tubeViews[targetIndex].Model.IsEmpty) return;
+
         //Block completed tubes
         if (tubeViews[targetIndex].Model.IsFullAndFilledWithOneColor()) return;
+
         //First selection
         if (_selectedIndex == _resetIndex)
         {
@@ -68,6 +73,7 @@ public class GameController : MonoBehaviour
             tubeViews[_selectedIndex].SetSelected(true);
             return;
         }
+
         //Same tube clicked → cancel selection
         if (_selectedIndex == targetIndex)
         {
@@ -80,6 +86,9 @@ public class GameController : MonoBehaviour
         //Try pour
         if (_gameModel.TryPour(_selectedIndex, targetIndex))
         {
+            _isAnimating = true;
+            await tubeViews[_selectedIndex]
+            .PlayPourAnimation(tubeViews[targetIndex].transform);
             Debug.Log("Poured successfully from tube " + _selectedIndex + " to tube " + targetIndex);
             RefreshAll();
             _selectedIndex = _resetIndex;
@@ -87,6 +96,7 @@ public class GameController : MonoBehaviour
             {
                 _levelPassedPanel.SetActive(true);
             }
+            _isAnimating = false;
         }
         else
         {
