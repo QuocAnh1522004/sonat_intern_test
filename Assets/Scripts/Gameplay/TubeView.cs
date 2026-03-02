@@ -12,7 +12,7 @@ public class TubeView : MonoBehaviour
     private int _tubeIndex;
     public TubeModel Model { get; private set; }
     private GameController _controller;
-    private float layerHeight = 0.5f;
+    private float layerHeight = 0.47f;
     private Vector3 _originalPos;
     private Quaternion _originalRot;
 
@@ -135,4 +135,5 @@ public class TubeView : MonoBehaviour
             .SetEase(Ease.InQuad)
             .AsyncWaitForCompletion();
     }
+
 }
