@@ -12,7 +12,14 @@ public class GameModel
     }
     public int TryPour(int fromIndex, int toIndex)
     {
-        return _tubes[fromIndex].TryPourInto(_tubes[toIndex]);
+        return _tubes[fromIndex]
+            .CalculatePourAmount(_tubes[toIndex]);
+    }
+
+    public void ApplyPour(int fromIndex, int toIndex, int amount)
+    {
+        _tubes[fromIndex]
+            .ApplyPourTo(_tubes[toIndex], amount);
     }
 
     public bool CheckWin()

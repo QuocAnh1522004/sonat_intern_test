@@ -90,6 +90,7 @@ public class GameController : MonoBehaviour
             _isAnimating = true;
             await tubeViews[_selectedIndex]
             .PlayPourAnimation(tubeViews[targetIndex], pourCount);
+            _gameModel.ApplyPour(_selectedIndex, targetIndex, pourCount);
             Debug.Log("Poured successfully from tube " + _selectedIndex + " to tube " + targetIndex);
             RefreshAll();
             _selectedIndex = _resetIndex;
