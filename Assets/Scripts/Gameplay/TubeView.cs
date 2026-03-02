@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using System.Threading.Tasks;
+using UnityEngine.Rendering;
 
 //this class controls the view displayed
 public class TubeView : MonoBehaviour
 {
     [SerializeField] private GameObject _tubeCap;
-    //[SerializeField] private Transform _contentRoot;
     public Transform layerContainer;
     public GameObject liquidLayerPrefab;
     private int _tubeIndex;
@@ -17,7 +17,21 @@ public class TubeView : MonoBehaviour
     private Vector3 _originalPos;
     private Quaternion _originalRot;
     private List<GameObject> _layerVisuals = new();
-    //[SerializeField] private GameObject _layerPrefab;
+    private SortingGroup _sortingGroup;
+    private bool hasPlayedFullSound = false;
+    private void Awake()
+    {
+        _sortingGroup = GetComponent<SortingGroup>();
+    }
+
+    public void BringToFront()
+    {
+        _sortingGroup.sortingOrder = 100;
+    }
+    public void ResetOrder(int originalOrder)
+    {
+        _sortingGroup.sortingOrder = originalOrder;
+    }
 
     //bind view to model data
     public void Initialize(TubeModel model, GameController controller, int index)
@@ -32,11 +46,16 @@ public class TubeView : MonoBehaviour
 
 
     //destroy all previous color to turn reload new tube data
-    public void Refresh()
+    public async void Refresh()
     {
-        if (Model.IsFullAndFilledWithOneColor())
+        if (Model.IsFullAndFilledWithOneColor() && hasPlayedFullSound == false)
+        {
+            SoundManager.Instance.PlaySFX(SoundType.BottleClose, 1.4f);
+            await Task.Delay(150);
+            SoundManager.Instance.PlaySFX(SoundType.BottleFull, 1.5f);
+            hasPlayedFullSound = true;
             _tubeCap.SetActive(true);
-
+        }          
         foreach (Transform child in layerContainer)
             Destroy(child.gameObject);
 
@@ -106,20 +125,18 @@ public class TubeView : MonoBehaviour
                                            target.transform.position.y + verticalLift,
                                            start.z);
         float direction = target.transform.position.x > transform.position.x ? -45f : 45f;
-        //Vector3 mid = (start + target.position) / 2 + Vector3.up * 1.2f;
         //move to middle
+        BringToFront();
         await transform.DOMove(pourPosition, moveDuration)
             .SetEase(Ease.OutQuad)
             .AsyncWaitForCompletion();
 
         //lean
-
         await transform.DORotate(new Vector3(0, 0, direction), rotateDuration)
             .SetEase(Ease.OutQuad)
             .AsyncWaitForCompletion();
 
         //pouring animation time
-        //await Task.Delay(300);
         await AnimateLiquidPour(target, count);
 
         //return to straight 
@@ -131,10 +148,13 @@ public class TubeView : MonoBehaviour
         await transform.DOMove(start, moveDuration)
             .SetEase(Ease.InQuad)
             .AsyncWaitForCompletion();
+
+        ResetOrder(0);
     }
 
     public async Task AnimateLiquidPour(TubeView target, int count)
     {
+        SoundManager.Instance.PlaySFX(SoundType.BottlePour,0.55f);
         float durationPerLayer = 0.35f;
         Sequence seq = DOTween.Sequence();
 
@@ -189,14 +209,9 @@ public class TubeView : MonoBehaviour
         layer.GetComponent<SpriteRenderer>().color = ConvertColor(color);
 
         layer.transform.localPosition = new Vector3(0, index * layerHeight, 0);
-
-        // bắt đầu từ scale Y = 0
         Vector3 originalScale = layer.transform.localScale;
         layer.transform.localScale = new Vector3(originalScale.x, 0f, originalScale.z);
-
         _layerVisuals.Add(layer);
-
-        // mọc từ dưới lên
         await layer.transform
             .DOScaleY(originalScale.y, 0.25f)
             .SetEase(Ease.OutSine)

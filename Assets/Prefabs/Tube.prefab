@@ -216,6 +216,7 @@ GameObject:
   - component: {fileID: 7731077187132428123}
   - component: {fileID: 4444317870565587685}
   - component: {fileID: 6802111103730640322}
+  - component: {fileID: 4985728805615966199}
   m_Layer: 0
   m_Name: Tube
   m_TagString: Untagged
@@ -303,8 +304,18 @@ MonoBehaviour:
   _tubeCap: {fileID: 2120258402520120723}
   layerContainer: {fileID: 1668742527450220205}
   liquidLayerPrefab: {fileID: 2407765388566461943, guid: c4e83766abd382c42b600abb7129f688, type: 3}
-  _contentRoot: {fileID: 7731077187132428123}
-  _layerPrefab: {fileID: 2407765388566461943, guid: c4e83766abd382c42b600abb7129f688, type: 3}
+--- !u!210 &4985728805615966199
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656301315051385548}
+  m_Enabled: 1
+  m_SortingLayerID: 1632487515
+  m_SortingLayer: 2
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
 --- !u!1 &6683375513699281040
 GameObject:
   m_ObjectHideFlags: 0

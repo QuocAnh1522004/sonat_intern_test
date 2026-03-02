@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class GameController : MonoBehaviour
 {
@@ -60,8 +61,11 @@ public class GameController : MonoBehaviour
         if (_isAnimating) return;
         TubeModel targetModel = tubeViews[targetIndex].Model;
         //Block first select on empty bottle
-        if (_selectedIndex == _resetIndex && targetModel.IsEmpty) return;
-
+        if (_selectedIndex == _resetIndex && targetModel.IsEmpty)
+        {
+            SoundManager.Instance.PlaySFX(SoundType.Deselect,1.25f);
+            return;
+        }
         //Block completed tubes
         if (targetModel.IsFullAndFilledWithOneColor()) return;
 
@@ -71,6 +75,7 @@ public class GameController : MonoBehaviour
             Debug.Log("Current tube index:" + targetIndex);
             _selectedIndex = targetIndex;
             tubeViews[_selectedIndex].SetSelected(true);
+            SoundManager.Instance.PlaySFX(SoundType.Select, 1.5f);
             return;
         }
 
@@ -79,7 +84,8 @@ public class GameController : MonoBehaviour
         {
             Debug.Log("same tube" + _selectedIndex + "selected, canceling select" );
             tubeViews[_selectedIndex].SetSelected(false);
-            _selectedIndex = _resetIndex;      
+            _selectedIndex = _resetIndex;
+            SoundManager.Instance.PlaySFX(SoundType.Deselect,1.25f);
             return;
         }
 
@@ -96,6 +102,8 @@ public class GameController : MonoBehaviour
             _selectedIndex = _resetIndex;
             if (_gameModel.CheckWin())
             {
+                await Task.Delay(200);
+                SoundManager.Instance.PlaySFX(SoundType.Win);
                 _levelPassedPanel.SetActive(true);
             }
             _isAnimating = false;
