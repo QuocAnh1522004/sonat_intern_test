@@ -276,7 +276,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.015344799, y: -0.14833146}
+  m_Offset: {x: -0.010817289, y: 0.29535735}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -286,7 +286,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.6624174, y: 2.237802}
+  m_Size: {x: 1.087996, y: 2.944082}
   m_EdgeRadius: 0
 --- !u!114 &6802111103730640322
 MonoBehaviour:
@@ -303,6 +303,8 @@ MonoBehaviour:
   _tubeCap: {fileID: 2120258402520120723}
   layerContainer: {fileID: 1668742527450220205}
   liquidLayerPrefab: {fileID: 2407765388566461943, guid: c4e83766abd382c42b600abb7129f688, type: 3}
+  _contentRoot: {fileID: 7731077187132428123}
+  _layerPrefab: {fileID: 2407765388566461943, guid: c4e83766abd382c42b600abb7129f688, type: 3}
 --- !u!1 &6683375513699281040
 GameObject:
   m_ObjectHideFlags: 0

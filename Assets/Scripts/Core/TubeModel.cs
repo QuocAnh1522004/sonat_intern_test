@@ -93,6 +93,34 @@ public class TubeModel
         for (int i = 0; i < count; i++)
             _layers.Push(color);
     }
+
+    public int TryPourInto(TubeModel target)
+    {
+        if (!CanPourTo(target)) return 0;
+
+        ColorType? topColor = PeekTop();
+        int count = GetTopSameColorCount();
+        int space = target.GetEmptySpace();
+
+        int pourAmount = Mathf.Min(count, space);
+
+        for (int i = 0; i < pourAmount; i++)
+        {
+            target.AddLayer(RemoveTopLayer());
+        }
+
+        return pourAmount;
+    }
+
+    public ColorType RemoveTopLayer()
+    {
+        return _layers.Pop();
+    }
+
+    public int GetEmptySpace()
+    {
+        return Capacity - _layers.Count;
+    }
 }
 
 

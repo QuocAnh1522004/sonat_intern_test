@@ -10,14 +10,9 @@ public class GameModel
     {
         _tubes = tubes;
     }
-    public bool TryPour(int fromIndex, int toIndex)
+    public int TryPour(int fromIndex, int toIndex)
     {
-        if(fromIndex == toIndex) return false;
-        TubeModel from = _tubes[fromIndex];
-        TubeModel to = _tubes[toIndex];
-        if(!from.CanPourTo(to)) return false;
-        from.PourTo(to);
-        return true;
+        return _tubes[fromIndex].TryPourInto(_tubes[toIndex]);
     }
 
     public bool CheckWin()

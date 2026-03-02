@@ -58,12 +58,12 @@ public class GameController : MonoBehaviour
     public async void OnTubeClicked(int targetIndex)
     {
         if (_isAnimating) return;
-
+        TubeModel targetModel = tubeViews[targetIndex].Model;
         //Block first select on empty bottle
-        if (_selectedIndex == _resetIndex && tubeViews[targetIndex].Model.IsEmpty) return;
+        if (_selectedIndex == _resetIndex && targetModel.IsEmpty) return;
 
         //Block completed tubes
-        if (tubeViews[targetIndex].Model.IsFullAndFilledWithOneColor()) return;
+        if (targetModel.IsFullAndFilledWithOneColor()) return;
 
         //First selection
         if (_selectedIndex == _resetIndex)
@@ -83,12 +83,13 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        int pourCount = _gameModel.TryPour(_selectedIndex, targetIndex);
         //Try pour
-        if (_gameModel.TryPour(_selectedIndex, targetIndex))
+        if (pourCount > 0)
         {
             _isAnimating = true;
             await tubeViews[_selectedIndex]
-            .PlayPourAnimation(tubeViews[targetIndex].transform);
+            .PlayPourAnimation(tubeViews[targetIndex], pourCount);
             Debug.Log("Poured successfully from tube " + _selectedIndex + " to tube " + targetIndex);
             RefreshAll();
             _selectedIndex = _resetIndex;

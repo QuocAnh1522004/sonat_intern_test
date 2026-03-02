@@ -7,14 +7,17 @@ using System.Threading.Tasks;
 public class TubeView : MonoBehaviour
 {
     [SerializeField] private GameObject _tubeCap;
+    //[SerializeField] private Transform _contentRoot;
     public Transform layerContainer;
     public GameObject liquidLayerPrefab;
     private int _tubeIndex;
     public TubeModel Model { get; private set; }
     private GameController _controller;
-    private float layerHeight = 0.47f;
+    private float layerHeight = 0.5f;
     private Vector3 _originalPos;
     private Quaternion _originalRot;
+    private List<GameObject> _layerVisuals = new();
+    //[SerializeField] private GameObject _layerPrefab;
 
     //bind view to model data
     public void Initialize(TubeModel model, GameController controller, int index)
@@ -27,31 +30,25 @@ public class TubeView : MonoBehaviour
         Refresh();
     }
 
-  
+
     //destroy all previous color to turn reload new tube data
     public void Refresh()
     {
         if (Model.IsFullAndFilledWithOneColor())
-        {
-            _tubeCap.SetActive(true);   
-        }
+            _tubeCap.SetActive(true);
 
         foreach (Transform child in layerContainer)
-        {
             Destroy(child.gameObject);
-        }
+
+        _layerVisuals.Clear();
 
         List<ColorType> layers = Model.GetLayers();
 
         for (int i = 0; i < layers.Count; ++i)
         {
-            GameObject layer = Instantiate(liquidLayerPrefab, layerContainer);
-
-            layer.transform.localPosition =
-                new Vector3(0, i * layerHeight, 0);
-
-            layer.GetComponent<SpriteRenderer>().color = ConvertColor(layers[i]);
+            SpawnLayerVisual(layers[i], i);
         }
+
         SetSelected(false);
     }
 
@@ -84,7 +81,6 @@ public class TubeView : MonoBehaviour
         }
         transform.localScale = Vector3.one;
         ResetSelect();
-        //PlaySelect();
     }
 
     public void PlaySelect()
@@ -97,19 +93,19 @@ public class TubeView : MonoBehaviour
         transform.DOMove(_originalPos, 0.2f);
     }
 
-    public async Task PlayPourAnimation(Transform target)
+    public async Task PlayPourAnimation(TubeView target, int count)
     {
         float moveDuration = 0.3f;
         float rotateDuration = 0.2f;
         float horizontalOffset = 1.5f; 
         float verticalLift = 2f;
         Vector3 start = _originalPos;
-        bool isRight = target.position.x > start.x;
+        bool isRight = target.transform.position.x > start.x;
         float offsetX = isRight ? -horizontalOffset : horizontalOffset;
-        Vector3 pourPosition = new Vector3(target.position.x + offsetX,
-                                           target.position.y + verticalLift,
+        Vector3 pourPosition = new Vector3(target.transform.position.x + offsetX,
+                                           target.transform.position.y + verticalLift,
                                            start.z);
-        float direction = target.position.x > transform.position.x ? -45f : 45f;
+        float direction = target.transform.position.x > transform.position.x ? -45f : 45f;
         //Vector3 mid = (start + target.position) / 2 + Vector3.up * 1.2f;
         //move to middle
         await transform.DOMove(pourPosition, moveDuration)
@@ -123,7 +119,8 @@ public class TubeView : MonoBehaviour
             .AsyncWaitForCompletion();
 
         //pouring animation time
-        await Task.Delay(300);
+        //await Task.Delay(300);
+        await AnimateLiquidPour(target, count);
 
         //return to straight 
         await transform.DORotate(_originalRot.eulerAngles, rotateDuration)
@@ -136,4 +133,56 @@ public class TubeView : MonoBehaviour
             .AsyncWaitForCompletion();
     }
 
+    public async Task AnimateLiquidPour(TubeView target, int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            GameObject topLayer = GetTopLayerVisual();
+            if (topLayer == null) return;
+
+            ColorType color = Model.PeekTop().Value;
+
+            await topLayer.transform
+                .DOScaleY(0f, 0.2f)
+                .SetEase(Ease.InOutSine)
+                .AsyncWaitForCompletion();
+
+            _layerVisuals.Remove(topLayer);
+            Destroy(topLayer);
+
+            target.SpawnLayerVisual(color, target.Model.Count - count + i);
+
+            await Task.Delay(50);
+        }
+    }
+
+    private GameObject GetTopLayerVisual()
+    {
+        if (_layerVisuals.Count == 0)
+            return null;
+
+        return _layerVisuals[_layerVisuals.Count - 1];
+    }
+    private void SpawnLayerVisual(ColorType color, int index)
+    {
+        GameObject layer = Instantiate(liquidLayerPrefab, layerContainer);
+
+        layer.GetComponent<SpriteRenderer>().color = ConvertColor(color);
+
+        layer.transform.localPosition = new Vector3(0, index * 0.5f, 0);
+
+        _layerVisuals.Add(layer);
+    }
+
+    private void RemoveTopLayerVisual()
+    {
+        if (_layerVisuals.Count == 0)
+            return;
+
+        GameObject top = _layerVisuals[_layerVisuals.Count - 1];
+
+        _layerVisuals.RemoveAt(_layerVisuals.Count - 1);
+
+        Destroy(top);
+    }
 }
