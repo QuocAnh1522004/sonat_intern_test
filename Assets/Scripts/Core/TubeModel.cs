@@ -37,7 +37,8 @@ public class TubeModel
                &&_layers.Peek() == colorToMove   
                && !target.IsFull)
         {
-            target._layers.Push(_layers.Pop()); //move the top color to the target tube
+            //move the top color to the target tube
+            target._layers.Push(_layers.Pop()); 
         }
     }
 
@@ -101,10 +102,6 @@ public class TubeModel
         int sameColorCount = GetTopSameColorCount();
         int space = target.GetEmptySpace();
         int pourAmount =  Mathf.Min(sameColorCount, space);
-        //for (int i = 0; i < pourAmount; i++)
-        //{
-        //    target.AddLayer(RemoveTopLayer());
-        //}
         return pourAmount;
     }
 

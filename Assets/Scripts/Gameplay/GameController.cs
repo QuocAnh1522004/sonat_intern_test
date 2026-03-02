@@ -35,12 +35,14 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < totalTubes; i++)
         {
             TubeModel model = new TubeModel(_maxLiquidStack);
+            //get all level data from SO
             foreach (var color in levelDataSO.tubeLevelDataSO[i].colorlayers)
             {
                 model.AddLayer(color);
             }
             modelList.Add(model);
 
+            //tube spawn area logic
             int row = i / _columns;
             int col = i % _columns;
             float totalWidth = (_columns - 1) * _spacingX;
@@ -49,6 +51,7 @@ public class GameController : MonoBehaviour
                    startOffset +
                    new Vector3(col * _spacingX, -row * _spacingY, 0);
             GameObject tubeObj = Instantiate(_tubePrefab, spawnPos, Quaternion.identity);
+            //pass the data previously into the view
             TubeView view = tubeObj.GetComponent<TubeView>();
             view.Initialize(model, this, i);
             tubeViews.Add(view);         
@@ -58,6 +61,7 @@ public class GameController : MonoBehaviour
 
     public async void OnTubeClicked(int targetIndex)
     {
+        //block when animation is happening
         if (_isAnimating) return;
 
         TubeModel targetModel = tubeViews[targetIndex].Model;
@@ -101,6 +105,7 @@ public class GameController : MonoBehaviour
             Debug.Log("Poured successfully from tube " + _selectedIndex + " to tube " + targetIndex);
             RefreshAll();
             _selectedIndex = _resetIndex;
+            //Game can only win after a move
             if (_gameModel.CheckWin())
             {
                 await Task.Delay(200);
@@ -109,10 +114,12 @@ public class GameController : MonoBehaviour
             }
             _isAnimating = false;
         }
+
+        //will choose new tube to be selected if can not pour
         else
         {
             tubeViews[_selectedIndex].SetSelected(false);
-            tubeViews[targetIndex].SetSelected(true); //will choose new tube to be selected if can not pour
+            tubeViews[targetIndex].SetSelected(true); 
             _selectedIndex = targetIndex;
         }
     }

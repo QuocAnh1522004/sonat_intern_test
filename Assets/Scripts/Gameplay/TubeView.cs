@@ -154,6 +154,7 @@ public class TubeView : MonoBehaviour
         ResetOrder(0);
     }
 
+    //shrink the liquid of the tube being poured and spawn it at target tube
     public async Task AnimateLiquidPour(TubeView target, int count)
     {
         SoundManager.Instance.PlaySFX(SoundType.BottlePour,0.55f);
@@ -163,20 +164,28 @@ public class TubeView : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             if (_layerVisuals.Count == 0) break;
-
             int topIndex = _layerVisuals.Count - 1;
+            // Get top layer from source tube
             GameObject topLayer = _layerVisuals[topIndex];
             _layerVisuals.RemoveAt(topIndex);
+
+            // Determine color and target position
             ColorType color = Model.PeekTop().Value;
             int targetIndex = target._layerVisuals.Count;
+
+            // Create new layer in target tube
             GameObject newLayer = Instantiate(liquidLayerPrefab, target.layerContainer);
             newLayer.GetComponent<SpriteRenderer>().color = ConvertColor(color);
             newLayer.transform.localPosition =
                 new Vector3(0, targetIndex * layerHeight, 0);
+
+            // Prepare grow animation
             Vector3 originalScale = newLayer.transform.localScale;
             newLayer.transform.localScale =
                 new Vector3(originalScale.x, 0f, originalScale.z);
             target._layerVisuals.Add(newLayer);
+
+            // Shrink source layer
             seq.Append(
                 topLayer.transform
                     .DOScaleY(0f, durationPerLayer)
@@ -187,7 +196,7 @@ public class TubeView : MonoBehaviour
                     })
             );
 
-            // GROW TARGET
+            //Grow target
             seq.Join(
                 newLayer.transform
                     .DOScaleY(originalScale.y, durationPerLayer)
