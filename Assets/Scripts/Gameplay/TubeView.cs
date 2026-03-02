@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening;
 using System.Threading.Tasks;
@@ -46,7 +46,7 @@ public class TubeView : MonoBehaviour
 
         for (int i = 0; i < layers.Count; ++i)
         {
-            SpawnLayerVisual(layers[i], i);
+            SpawnLayerInstant(layers[i], i);
         }
 
         SetSelected(false);
@@ -141,7 +141,6 @@ public class TubeView : MonoBehaviour
             if (topLayer == null) return;
 
             ColorType color = Model.PeekTop().Value;
-
             await topLayer.transform
                 .DOScaleY(0f, 0.2f)
                 .SetEase(Ease.InOutSine)
@@ -149,8 +148,8 @@ public class TubeView : MonoBehaviour
 
             _layerVisuals.Remove(topLayer);
             Destroy(topLayer);
-
-            target.SpawnLayerVisual(color, target.Model.Count - count + i);
+            int targetIndex = target._layerVisuals.Count;
+            await target.SpawnLayerVisual(color, targetIndex);
 
             await Task.Delay(50);
         }
@@ -163,15 +162,25 @@ public class TubeView : MonoBehaviour
 
         return _layerVisuals[_layerVisuals.Count - 1];
     }
-    private void SpawnLayerVisual(ColorType color, int index)
+    private async Task SpawnLayerVisual(ColorType color, int index)
     {
         GameObject layer = Instantiate(liquidLayerPrefab, layerContainer);
 
         layer.GetComponent<SpriteRenderer>().color = ConvertColor(color);
 
-        layer.transform.localPosition = new Vector3(0, index * 0.5f, 0);
+        layer.transform.localPosition = new Vector3(0, index * layerHeight, 0);
+
+        // bắt đầu từ scale Y = 0
+        Vector3 originalScale = layer.transform.localScale;
+        layer.transform.localScale = new Vector3(originalScale.x, 0f, originalScale.z);
 
         _layerVisuals.Add(layer);
+
+        // mọc từ dưới lên
+        await layer.transform
+            .DOScaleY(originalScale.y, 0.25f)
+            .SetEase(Ease.OutSine)
+            .AsyncWaitForCompletion();
     }
 
     private void RemoveTopLayerVisual()
@@ -184,5 +193,16 @@ public class TubeView : MonoBehaviour
         _layerVisuals.RemoveAt(_layerVisuals.Count - 1);
 
         Destroy(top);
+    }
+
+    private void SpawnLayerInstant(ColorType color, int index)
+    {
+        GameObject layer = Instantiate(liquidLayerPrefab, layerContainer);
+
+        layer.GetComponent<SpriteRenderer>().color = ConvertColor(color);
+
+        layer.transform.localPosition = new Vector3(0, index * layerHeight, 0);
+
+        _layerVisuals.Add(layer);
     }
 }
