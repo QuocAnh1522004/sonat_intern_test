@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f877a886ee3b19e4aaeb31706362a9c0, type: 3}
-  m_Name: Tube05SO
+  m_Name: LV2_Tube00SO
   m_EditorClassIdentifier: 
-  colorlayers: 000000000100000003000000
+  colorlayers: 010000000200000003000000

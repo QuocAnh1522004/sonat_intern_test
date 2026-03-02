@@ -27,7 +27,7 @@ public class GameController : MonoBehaviour
         SetupGame();
     }
 
-    void SetupGame()
+    public void SetupGame()
     {     
         List<TubeModel> modelList = new List<TubeModel>();
         tubeViews = new List<TubeView>();
