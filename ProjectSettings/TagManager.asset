@@ -41,5 +41,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 4277694067
+    locked: 0
+  - name: Tube
+    uniqueID: 1632487515
+    locked: 0
+  - name: Liquid
+    uniqueID: 1868180661
+    locked: 0
   m_RenderingLayers:
   - Default

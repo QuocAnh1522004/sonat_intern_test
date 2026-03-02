@@ -25,6 +25,11 @@ public class TubeView : MonoBehaviour
     //destroy all previous color to turn reload new tube data
     public void Refresh()
     {
+        if (Model.IsFullAndFilledWithOneColor())
+        {
+            _tubeCap.SetActive(true);   
+        }
+
         foreach (Transform child in layerContainer)
         {
             Destroy(child.gameObject);
@@ -39,8 +44,7 @@ public class TubeView : MonoBehaviour
             layer.transform.localPosition =
                 new Vector3(0, i * layerHeight, 0);
 
-            layer.GetComponent<SpriteRenderer>().color =
-                ConvertColor(layers[i]);
+            layer.GetComponent<SpriteRenderer>().color = ConvertColor(layers[i]);
         }
         SetSelected(false);
     }
