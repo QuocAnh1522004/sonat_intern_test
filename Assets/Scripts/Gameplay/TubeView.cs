@@ -19,6 +19,7 @@ public class TubeView : MonoBehaviour
     private List<GameObject> _layerVisuals = new();
     private SortingGroup _sortingGroup;
     private bool hasPlayedFullSound = false;
+    public bool IsAnimating;
     private void Awake()
     {
         _sortingGroup = GetComponent<SortingGroup>();
@@ -149,6 +150,7 @@ public class TubeView : MonoBehaviour
             .SetEase(Ease.InQuad)
             .AsyncWaitForCompletion();
 
+        IsAnimating = false;
         ResetOrder(0);
     }
 

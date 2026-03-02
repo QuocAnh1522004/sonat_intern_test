@@ -59,6 +59,7 @@ public class GameController : MonoBehaviour
     public async void OnTubeClicked(int targetIndex)
     {
         if (_isAnimating) return;
+
         TubeModel targetModel = tubeViews[targetIndex].Model;
         //Block first select on empty bottle
         if (_selectedIndex == _resetIndex && targetModel.IsEmpty)
