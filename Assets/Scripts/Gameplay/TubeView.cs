@@ -101,15 +101,23 @@ public class TubeView : MonoBehaviour
     {
         float moveDuration = 0.3f;
         float rotateDuration = 0.2f;
+        float horizontalOffset = 1.5f; 
+        float verticalLift = 2f;
         Vector3 start = _originalPos;
-        Vector3 mid = (start + target.position) / 2 + Vector3.up * 1.2f;
+        bool isRight = target.position.x > start.x;
+        float offsetX = isRight ? -horizontalOffset : horizontalOffset;
+        Vector3 pourPosition = new Vector3(target.position.x + offsetX,
+                                           target.position.y + verticalLift,
+                                           start.z);
+        float direction = target.position.x > transform.position.x ? -45f : 45f;
+        //Vector3 mid = (start + target.position) / 2 + Vector3.up * 1.2f;
         //move to middle
-        await transform.DOMove(mid, moveDuration)
+        await transform.DOMove(pourPosition, moveDuration)
             .SetEase(Ease.OutQuad)
             .AsyncWaitForCompletion();
 
         //lean
-        float direction = target.position.x > transform.position.x ? -45f : 45f;
+        
         await transform.DORotate(new Vector3(0, 0, direction), rotateDuration)
             .SetEase(Ease.OutQuad)
             .AsyncWaitForCompletion();

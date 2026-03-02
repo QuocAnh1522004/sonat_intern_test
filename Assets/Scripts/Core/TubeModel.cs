@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 //this class contains the tube raw structure/data of the tube
 public class TubeModel
@@ -60,6 +61,37 @@ public class TubeModel
     public List<ColorType> GetLayers()
     {
         return _layers.Reverse().ToList();
+    }
+
+    public int GetTopSameColorCount()
+    {
+        if (_layers.Count == 0)
+            return 0;
+
+        ColorType topColor = _layers.Peek();
+        int count = 0;
+
+        foreach (var layer in _layers)
+        {
+            if (layer.Equals(topColor))
+                count++;
+            else
+                break;
+        }
+
+        return count;
+    }
+
+    public void RemoveTopLayers(int count)
+    {
+        for (int i = 0; i < count; i++)
+            _layers.Pop();
+    }
+
+    public void AddManySameColorLayers(ColorType color, int count)
+    {
+        for (int i = 0; i < count; i++)
+            _layers.Push(color);
     }
 }
 
